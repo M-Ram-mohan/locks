@@ -4,10 +4,10 @@ import org.concurrency.queue.Queue;
 
 import java.util.Objects;
 
-public class Producer implements Runnable {
+public class BasicProducerRunnable implements Runnable {
     int value;
     Queue queue;
-    public Producer(Queue queue){
+    public BasicProducerRunnable(Queue queue){
         this.queue = queue;
         value = 0;
     }

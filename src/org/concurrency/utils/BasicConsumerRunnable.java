@@ -4,11 +4,11 @@ import org.concurrency.queue.Queue;
 
 import java.util.Objects;
 
-public class Consumer implements Runnable {
+public class BasicConsumerRunnable implements Runnable {
     int cnt;
     Queue queue;
 
-    public Consumer(Queue queue) {
+    public BasicConsumerRunnable(Queue queue) {
         this.queue = queue;
         this.cnt = 0;
     }

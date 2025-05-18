@@ -3,8 +3,8 @@ package org.concurrency;
 import org.concurrency.queue.AtomicQueue;
 import org.concurrency.queue.Queue;
 import org.concurrency.queue.SynchronizedQueue;
-import org.concurrency.utils.Consumer;
-import org.concurrency.utils.Producer;
+import org.concurrency.utils.BasicConsumerRunnable;
+import org.concurrency.utils.BasicProducerRunnable;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,10 +27,10 @@ public class Main {
         testQueue(queue);
     }
     public static void testQueue(Queue queue){
-        Producer producer = new Producer(queue);
-        Thread producerThread = new Thread(producer);
-        Consumer consumer = new Consumer(queue);
-        Thread consumerThread = new Thread(consumer);
+        BasicProducerRunnable basicProducerRunnable = new BasicProducerRunnable(queue);
+        Thread producerThread = new Thread(basicProducerRunnable);
+        BasicConsumerRunnable basicConsumerRunnable = new BasicConsumerRunnable(queue);
+        Thread consumerThread = new Thread(basicConsumerRunnable);
         long start = System.currentTimeMillis();
         producerThread.start();
         consumerThread.start();
