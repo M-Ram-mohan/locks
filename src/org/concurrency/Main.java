@@ -9,6 +9,7 @@ import org.concurrency.utils.Producer;
 public class Main {
     public static void main(String[] args) {
          testLockFreeQueue();
+//        testSynchronizedQueue();
     }
     /**
      * Time taken: 150ms - 200ms || 3X faster than synchronized queue
@@ -18,7 +19,8 @@ public class Main {
         testQueue(queue);
     }
     /**
-     * Time taken: 450ms - 650ms
+     * Time taken (LCK-002): 450ms - 650ms
+     * Time taken (LCK-003): 150ms - 250ms
      */
     public static void testSynchronizedQueue(){
         Queue queue = new SynchronizedQueue(1024);

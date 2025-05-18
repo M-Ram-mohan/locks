@@ -4,6 +4,8 @@ public class SynchronizedQueue implements Queue{
     int capacity;
     int producerIndex;
     int consumerIndex;
+    int prevConsumerIndex;
+    int prevProducerIndex;
     StringBuilder[] messages;
     public SynchronizedQueue(int capacity){
         messages = new StringBuilder[capacity];
@@ -12,9 +14,18 @@ public class SynchronizedQueue implements Queue{
         }
         this.capacity = capacity;
         producerIndex = 0;
+        prevConsumerIndex = 0;
+        prevProducerIndex = 0;
         consumerIndex = 0;
     }
-    public synchronized StringBuilder push(){
+    public StringBuilder push(){
+        if(producerIndex<prevConsumerIndex+capacity){
+            return messages[getWrappedIndex(producerIndex)];
+        }
+        return pushMessage();
+    }
+    public synchronized StringBuilder pushMessage(){
+        prevConsumerIndex = consumerIndex;
         if(producerIndex<consumerIndex+capacity)
             return messages[getWrappedIndex(producerIndex)];
         return null;
@@ -22,7 +33,13 @@ public class SynchronizedQueue implements Queue{
     public void flush(){
         producerIndex++;
     }
-    public synchronized StringBuilder pop(){
+    public StringBuilder pop(){
+        if(consumerIndex+1>prevProducerIndex)
+            return popMessage();
+        return messages[getWrappedIndex(consumerIndex)];
+    }
+    public synchronized StringBuilder popMessage(){
+        prevProducerIndex = producerIndex;
         if(consumerIndex+1>producerIndex)
             return null;
         return messages[getWrappedIndex(consumerIndex)];
