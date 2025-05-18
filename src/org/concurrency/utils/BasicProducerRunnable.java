@@ -4,16 +4,19 @@ import org.concurrency.queue.Queue;
 
 import java.util.Objects;
 
+import static org.concurrency.utils.Constants.TOTAL_MSG_COUNT;
+
 public class BasicProducerRunnable implements Runnable {
     int value;
     Queue queue;
+    int maxValue = TOTAL_MSG_COUNT;
     public BasicProducerRunnable(Queue queue){
         this.queue = queue;
         value = 0;
     }
     @Override
     public void run() {
-        while (value < 1_000_000) {
+        while (value < maxValue) {
             StringBuilder x = queue.push();
             if(Objects.nonNull(x)){
                 x.setLength(0);

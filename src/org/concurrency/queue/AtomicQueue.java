@@ -5,7 +5,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AtomicQueue implements Queue {
     int capacity;
     AtomicLong producerIndex;
+    long currProducerIndex;
+    long currEnd;
+    long currFilled;
     AtomicLong consumerIndex;
+    long currConsumerIndex;
     StringBuilder[] messages;
     public AtomicQueue(int capacity) {
         this.messages = new StringBuilder[capacity];
@@ -13,31 +17,57 @@ public class AtomicQueue implements Queue {
             messages[i] = new StringBuilder();
         }
         this.capacity = capacity;
+        currProducerIndex = 0;
+        currConsumerIndex = 0;
+        currEnd = capacity;
+        currFilled = 0;
         producerIndex = new AtomicLong(0);
         consumerIndex = new AtomicLong(0);
     }
-    public StringBuilder pop() {
-        int currProducerIndex = (int) producerIndex.get();
-        int consumerIndexValue = (int) consumerIndex.get();
-        if(consumerIndexValue+1>currProducerIndex)
-            return null;
-        return messages[getWrappedIndex(consumerIndexValue)];
+    public int availableToPopCount() {
+        if(currConsumerIndex<currFilled){
+            return (int) (currFilled-currConsumerIndex);
+        }
+        currFilled = producerIndex.get();
+        if(currConsumerIndex<currFilled){
+            return (int) (currFilled-currConsumerIndex);
+        }
+        return 0;
+    }
+    public StringBuilder pop(){
+        currConsumerIndex++;
+        return messages[getWrappedIndex(currConsumerIndex)];
     }
     public StringBuilder push() {
-        int currConsumerIndex = (int) consumerIndex.get();
-        int producerIndexValue = (int) producerIndex.get();
-        if(producerIndexValue < currConsumerIndex + capacity) {
-            return messages[getWrappedIndex(producerIndexValue)];
+        if(currProducerIndex<currEnd){
+            currProducerIndex++;
+            return messages[getWrappedIndex(currProducerIndex)];
+        }
+        currEnd = consumerIndex.get() + capacity;
+        if(currProducerIndex < currEnd) {
+            currProducerIndex++;
+            return messages[getWrappedIndex(currProducerIndex)];
         }
         return null;
     }
     public void doneFetching() {
-        consumerIndex.incrementAndGet();
+        consumerIndex.set(currConsumerIndex);
     }
     public void flush() {
-        producerIndex.incrementAndGet();
+        producerIndex.set(currProducerIndex);
     }
-    public int getWrappedIndex(int index) {
-        return (index) % capacity;
+    public int getWrappedIndex(long index) {
+        return (int) ((index-1) % capacity);
     }
+    /**
+     * pi = x : Producer has produced messages till the (x-1)th index
+     * ci = y : Consumer has consumed messages till the (y-1)th index
+     *
+     * 1 2 3 4
+     * pi = 0; push() will return 1 and updates pi to 1
+     * pi = 3; push() will return 4 and updates pi to 4
+     * pi = 4; push() will return null because pi < ci + capacity is not satisfied
+     * ci = 0; pop() should return 1 and updates ci to 1
+     *
+     */
 }

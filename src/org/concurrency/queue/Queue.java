@@ -5,4 +5,5 @@ public interface Queue {
     public void flush();
     public StringBuilder pop();
     public void doneFetching();
+    public int availableToPopCount();
 }

@@ -5,32 +5,53 @@ import org.concurrency.queue.Queue;
 import org.concurrency.queue.SynchronizedQueue;
 import org.concurrency.utils.BasicConsumerRunnable;
 import org.concurrency.utils.BasicProducerRunnable;
+import org.concurrency.utils.BatchMessageConsumerRunnable;
+import org.concurrency.utils.BatchMessageProducerRunnable;
+
+import static org.concurrency.utils.Constants.BATCH_SIZE;
+import static org.concurrency.utils.Constants.QUEUE_SIZE;
 
 public class Main {
     public static void main(String[] args) {
-         testLockFreeQueue();
-//        testSynchronizedQueue();
+        try{
+            testSingleProducerSingleConsumerQueue(new AtomicQueue(QUEUE_SIZE));
+            Thread.sleep(1000);
+            testSingleProducerSingleConsumerQueue(new SynchronizedQueue(QUEUE_SIZE));
+            Thread.sleep(1000);
+            testSingleProducerSingleConsumerQueueWithBatching(new AtomicQueue(QUEUE_SIZE));
+        } catch (Exception ex){
+            throw new RuntimeException();
+        }
     }
     /**
-     * Time taken: 150ms - 200ms || 3X faster than synchronized queue
+     * The below tests are done before warming up the JVM
+     *
+     * Synchronized Queue - Time taken (LCK-002): 450ms - 650ms [ Brute force ]
+     *                    - Time taken (LCK-003): 50ms - 150ms [ Avoided mutex locking ]
+     * Atomic Queue       - Time taken (LCK-002): 50ms - 150ms [ Lock free ]
+     *                    - Time taken (LCK-005): 50ms - 150ms  [ Batching ]
+     *
+     * Enhancements :
+     * Synchronized Queue : Message Batching can be done to improve the performance
+     *
+     * Comments :
+     * - Batching didn't have as much impact as expected on the performance of the queue
      */
-    public static void testLockFreeQueue(){
-        Queue queue = new AtomicQueue(1024);
-        testQueue(queue);
-    }
-    /**
-     * Time taken (LCK-002): 450ms - 650ms
-     * Time taken (LCK-003): 150ms - 250ms
-     */
-    public static void testSynchronizedQueue(){
-        Queue queue = new SynchronizedQueue(1024);
-        testQueue(queue);
-    }
-    public static void testQueue(Queue queue){
+    public static void testSingleProducerSingleConsumerQueue(Queue queue){
         BasicProducerRunnable basicProducerRunnable = new BasicProducerRunnable(queue);
-        Thread producerThread = new Thread(basicProducerRunnable);
         BasicConsumerRunnable basicConsumerRunnable = new BasicConsumerRunnable(queue);
-        Thread consumerThread = new Thread(basicConsumerRunnable);
+        testQueueLatency(queue, basicProducerRunnable, basicConsumerRunnable);
+    }
+
+    public static void testSingleProducerSingleConsumerQueueWithBatching(Queue queue){
+        BatchMessageProducerRunnable producerRunnable = new BatchMessageProducerRunnable(queue, BATCH_SIZE);
+        BatchMessageConsumerRunnable consumerRunnable = new BatchMessageConsumerRunnable(queue);
+        testQueueLatency(queue, producerRunnable, consumerRunnable);
+    }
+
+    public static void testQueueLatency(Queue queue, Runnable producerRunnable, Runnable consumerRunnable){
+        Thread producerThread = new Thread(producerRunnable);
+        Thread consumerThread = new Thread(consumerRunnable);
         long start = System.currentTimeMillis();
         producerThread.start();
         consumerThread.start();
@@ -45,6 +66,8 @@ public class Main {
     }
 }
 /**
+ * Comments :
+ *
  * I need to implement a concurrent queue using atomic operations.
  * To do that, I need to create a class that will represent the queue.
  * When dealing with concurrent programming,
@@ -71,11 +94,20 @@ public class Main {
  *
  *
  * Enhancements
- * - You can try to modify the consume operation by returning the number of messages that are yet to be consumed.
- *   Then, this can be used by the consumer to consume the messages freely without worrying about the other thread for every message.
+ * SynchronizedQueue
+ * LCK-003 : Avoided repetitive entering into synchronized blocks by storing the count of available message objects to produce/consume
+ *
+ *  *
+ * AtomicQueue
+ * - LCK-003 Logic didn't have much impact on the performance of the queue because you already avoided locking
+ * - Batching of messages can be done on the producer side and the consumer can get all the available messages to avoid flushing
+ *   multiple times.
  *
  * What example class of Message should we proceed with ?
  * - You can't take string, because it's immutable
  * - You can't take int, becaue they are primitive data types
  * - You can probably take Integer class.
+ *
+ * TODO :
+ * https://github.com/coralblocks/CoralME?tab=readme-ov-file - MatchingEngine CoralSequencer
  */

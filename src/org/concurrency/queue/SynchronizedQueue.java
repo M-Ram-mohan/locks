@@ -18,6 +18,9 @@ public class SynchronizedQueue implements Queue{
         prevProducerIndex = 0;
         consumerIndex = 0;
     }
+    public synchronized int availableToPopCount() {
+        return 0;
+    }
     public StringBuilder push(){
         if(producerIndex<prevConsumerIndex+capacity){
             return messages[getWrappedIndex(producerIndex)];

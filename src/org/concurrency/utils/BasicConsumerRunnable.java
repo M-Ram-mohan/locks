@@ -4,8 +4,11 @@ import org.concurrency.queue.Queue;
 
 import java.util.Objects;
 
+import static org.concurrency.utils.Constants.TOTAL_MSG_COUNT;
+
 public class BasicConsumerRunnable implements Runnable {
     int cnt;
+    int maxCnt = TOTAL_MSG_COUNT;
     Queue queue;
 
     public BasicConsumerRunnable(Queue queue) {
@@ -15,7 +18,7 @@ public class BasicConsumerRunnable implements Runnable {
 
     @Override
     public void run() {
-        while (cnt < 1_000_000) {
+        while (cnt < maxCnt) {
             StringBuilder x = queue.pop();
             if (Objects.nonNull(x)) {
                 cnt++;
