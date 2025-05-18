@@ -24,18 +24,23 @@ public class Main {
         }
     }
     /**
-     * The below tests are done before warming up the JVM
+     * Messages : 1_000_000
      *
-     * Synchronized Queue - Time taken (LCK-002): 450ms - 650ms [ Brute force ]
+     * Synchronized Queue - Time taken (LCK-002): 150ms - 250ms [ Brute force ]
      *                    - Time taken (LCK-003): 50ms - 150ms [ Avoided mutex locking ]
      * Atomic Queue       - Time taken (LCK-002): 50ms - 150ms [ Lock free ]
-     *                    - Time taken (LCK-005): 50ms - 150ms  [ Batching ]
+     *                    - Time taken (LCK-005): 50ms - 100ms  [ Batching ]
+     *
+     * Messages : 10_000_000
+     *
+     * Synchronized Queue - Time taken (LCK-002): 3000ms - 4000ms [ Brute force ]
+     *                    - Time taken (LCK-003): 1000ms - 1100ms [ Avoided mutex locking ]
+     * Atomic Queue       - Time taken (LCK-002): 500ms - 600ms [ Lock free ]
+     *                    - Time taken (LCK-005): 50ms - 100ms  [ Batching ]
      *
      * Enhancements :
      * Synchronized Queue : Message Batching can be done to improve the performance
      *
-     * Comments :
-     * - Batching didn't have as much impact as expected on the performance of the queue
      */
     public static void testSingleProducerSingleConsumerQueue(Queue queue){
         BasicProducerRunnable basicProducerRunnable = new BasicProducerRunnable(queue);
