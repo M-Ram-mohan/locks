@@ -29,14 +29,14 @@ public class AtomicQueue implements Queue {
             return (int) (currFilled-currConsumerIndex);
         }
         currFilled = producerIndex.get();
-        if(currConsumerIndex<currFilled){
-            return (int) (currFilled-currConsumerIndex);
-        }
         return 0;
     }
     public StringBuilder pop(){
-        currConsumerIndex++;
-        return messages[getWrappedIndex(currConsumerIndex)];
+        if(currConsumerIndex<currFilled){
+            currConsumerIndex++;
+            return messages[getWrappedIndex(currConsumerIndex)];
+        }
+        return null;
     }
     public StringBuilder push() {
         if(currProducerIndex<currEnd){
@@ -44,11 +44,13 @@ public class AtomicQueue implements Queue {
             return messages[getWrappedIndex(currProducerIndex)];
         }
         currEnd = consumerIndex.get() + capacity;
-        if(currProducerIndex < currEnd) {
-            currProducerIndex++;
-            return messages[getWrappedIndex(currProducerIndex)];
-        }
         return null;
+    }
+    public StringBuilder push(int producerIndex) {
+        throw new RuntimeException();
+    }
+    public void flush(int producerIndex) {
+        throw new RuntimeException();
     }
     public void doneFetching() {
         consumerIndex.set(currConsumerIndex);

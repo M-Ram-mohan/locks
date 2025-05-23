@@ -2,6 +2,8 @@ package org.concurrency.utils;
 
 import org.concurrency.queue.Queue;
 
+import static org.concurrency.utils.Constants.MSG_PER_CONSUMER;
+
 public class BatchMessageConsumerRunnable implements Runnable{
 
     int cnt;
@@ -11,12 +13,14 @@ public class BatchMessageConsumerRunnable implements Runnable{
         cnt = 0;
     }
     public void run() {
-        while (cnt < 1_000_000) {
+        while (cnt < MSG_PER_CONSUMER) {
             int msgCnt = queue.availableToPopCount();
             while(msgCnt > 0){
                 StringBuilder x = queue.pop();
-                cnt++;
-                msgCnt--;
+                if(x != null){
+                    cnt++;
+                    msgCnt--;
+                }
             }
             queue.doneFetching();
         }

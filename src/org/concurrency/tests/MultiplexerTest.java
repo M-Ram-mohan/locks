@@ -1,54 +1,50 @@
 package org.concurrency.tests;
 
-import org.concurrency.queue.Multiplexer;
-import org.concurrency.utils.MultiplexerConsumer;
-import org.concurrency.utils.MultiplexerProducer;
+import org.concurrency.multiplexer.AtomicMultiplexer;
+import org.concurrency.multiplexer.Multiplexer;
+import org.concurrency.utils.BatchMessageConsumerRunnable;
+import org.concurrency.utils.BatchMessageProducerRunnable;
 
-import static org.concurrency.utils.Constants.PRODUCER_COUNT;
-import static org.concurrency.utils.Constants.QUEUE_SIZE;
-/*
- * Messages : 9_000_000 - Producers : 3
- *
- * Time taken - 1393 ms
- *
- * Messages : 9_00_000 - Producers : 3
- *
- * Time taken - 250 ms
- *
- */
+import static org.concurrency.utils.Constants.BATCH_SIZE;
+import static org.concurrency.utils.Constants.PRODUCERS_CNT;
+
 public class MultiplexerTest implements Test{
     public MultiplexerTest(){
 
     }
-    public void performTests(){
-        Multiplexer queue = new Multiplexer(QUEUE_SIZE, PRODUCER_COUNT);
-        Runnable[] producerRunnables = new Runnable[PRODUCER_COUNT];
-        for(int i=0; i<PRODUCER_COUNT; i++){
-            producerRunnables[i] = new MultiplexerProducer(queue);
+
+    public void performTests() {
+        Multiplexer mux = new AtomicMultiplexer(PRODUCERS_CNT);
+        BatchMessageProducerRunnable[] producerRunnables = new BatchMessageProducerRunnable[PRODUCERS_CNT];
+        for (int i = 0; i < PRODUCERS_CNT; i++) {
+            producerRunnables[i] = new BatchMessageProducerRunnable(mux, BATCH_SIZE, i);
         }
-        Runnable consumerRunnable = new MultiplexerConsumer(queue);
+        BatchMessageConsumerRunnable consumerRunnable = new BatchMessageConsumerRunnable(mux);
         testQueueLatency(producerRunnables, consumerRunnable);
     }
-    public void testQueueLatency(Runnable[] producerRunnables, Runnable consumerRunnable){
-        Thread[] producers = new Thread[PRODUCER_COUNT];
-        for(int i=0; i<PRODUCER_COUNT; i++){
-            producers[i] = new Thread(producerRunnables[i]);
+    public void testQueueLatency(BatchMessageProducerRunnable[] producerRunnables, BatchMessageConsumerRunnable consumerRunnable) {
+        long startTime = System.currentTimeMillis();
+        Thread[] producerThreads = new Thread[PRODUCERS_CNT];
+        for (int i=0; i < PRODUCERS_CNT; i++) {
+            producerThreads[i] = new Thread(producerRunnables[i]);
+            producerThreads[i].start();
+            System.out.println("Producer " + i + " started");
         }
-        Thread consumer = new Thread(consumerRunnable);
-        long start = System.currentTimeMillis();
-        for(int i=0; i<PRODUCER_COUNT; i++){
-            producers[i].start();
-        }
-        consumer.start();
-        try {
-            for(int i=0; i<PRODUCER_COUNT; i++){
-                producers[i].join();
+        Thread consumerThread = new Thread(consumerRunnable);
+        consumerThread.start();
+        for(int i=0; i < PRODUCERS_CNT; i++) {
+            try {
+                producerThreads[i].join();
+            } catch (InterruptedException e) {
+                throw  new RuntimeException();
             }
-            consumer.join();
-        } catch (InterruptedException e) {
+        }
+        try {
+            consumerThread.join();
+        } catch (Exception ex){
             throw new RuntimeException();
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Time taken: " + (end - start) + "ms");
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total time taken: " + (endTime - startTime) + " ms");
     }
 }

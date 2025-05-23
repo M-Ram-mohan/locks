@@ -47,6 +47,12 @@ public class SynchronizedQueue implements Queue{
             return null;
         return messages[getWrappedIndex(consumerIndex)];
     }
+    public StringBuilder push(int producerIndex) {
+        throw new RuntimeException();
+    }
+    public void flush(int producerIndex) {
+        throw new RuntimeException();
+    }
     public synchronized void doneFetching(){
         consumerIndex++;
     }
