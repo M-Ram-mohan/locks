@@ -21,8 +21,7 @@ public class AtomicMultiplexer extends Multiplexer {
         if (producerIndex < 0 || producerIndex >= producerCount) {
             throw new IllegalArgumentException("Invalid producer index: " + producerIndex);
         }
-        StringBuilder x =  queues[producerIndex].push();
-        return x;
+        return queues[producerIndex].push();
     }
     public void flush(int producerIndex) {
         if (producerIndex < 0 || producerIndex >= producerCount) {

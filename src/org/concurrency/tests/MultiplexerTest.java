@@ -7,7 +7,19 @@ import org.concurrency.utils.BatchMessageProducerRunnable;
 
 import static org.concurrency.utils.Constants.BATCH_SIZE;
 import static org.concurrency.utils.Constants.PRODUCERS_CNT;
-
+/*
+ * Messages : 9_000_000 - Producers : 3
+ *
+ * Time taken - 900 ms
+ *
+ * Messages : 9_00_000 - Producers : 3
+ *
+ * Time taken - 120 ms
+ *
+ * Results seem a bit inconsistent. Achieved 400ms || 60ms at some point of time.
+ * Need to figure out why.
+ *
+ */
 public class MultiplexerTest implements Test{
     public MultiplexerTest(){
 
