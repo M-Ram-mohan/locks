@@ -18,7 +18,7 @@ public class BasicProducerRunnable implements Runnable {
     public void run() {
         while (value < maxValue) {
             StringBuilder x = queue.push();
-            if(Objects.nonNull(x)){
+            if(x != null){
                 x.setLength(0);
                 x.append(value);
                 value++;

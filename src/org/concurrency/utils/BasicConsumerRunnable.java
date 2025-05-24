@@ -19,10 +19,14 @@ public class BasicConsumerRunnable implements Runnable {
     @Override
     public void run() {
         while (cnt < maxCnt) {
-            StringBuilder x = queue.pop();
-            if (Objects.nonNull(x)) {
-                cnt++;
-                queue.doneFetching();
+            int msgCnt = queue.availableToPopCount();
+            while(msgCnt > 0) {
+                StringBuilder x = queue.pop();
+                if (x != null) {
+                    cnt++;
+                    msgCnt--;
+                    queue.doneFetching();
+                }
             }
         }
     }

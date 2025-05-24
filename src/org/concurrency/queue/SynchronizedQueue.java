@@ -1,6 +1,6 @@
 package org.concurrency.queue;
 
-public class SynchronizedQueue implements Queue{
+public class SynchronizedQueue extends AbstractQueue{
     int capacity;
     int producerIndex;
     int consumerIndex;
@@ -19,7 +19,11 @@ public class SynchronizedQueue implements Queue{
         consumerIndex = 0;
     }
     public synchronized int availableToPopCount() {
-        return 0;
+        if(prevProducerIndex>consumerIndex){
+            return prevProducerIndex - consumerIndex;
+        }
+        prevProducerIndex = producerIndex;
+        return prevProducerIndex - consumerIndex;
     }
     public StringBuilder push(){
         if(producerIndex<prevConsumerIndex+capacity){
@@ -37,21 +41,7 @@ public class SynchronizedQueue implements Queue{
         producerIndex++;
     }
     public StringBuilder pop(){
-        if(consumerIndex+1>prevProducerIndex)
-            return popMessage();
         return messages[getWrappedIndex(consumerIndex)];
-    }
-    public synchronized StringBuilder popMessage(){
-        prevProducerIndex = producerIndex;
-        if(consumerIndex+1>producerIndex)
-            return null;
-        return messages[getWrappedIndex(consumerIndex)];
-    }
-    public StringBuilder push(int producerIndex) {
-        throw new RuntimeException();
-    }
-    public void flush(int producerIndex) {
-        throw new RuntimeException();
     }
     public synchronized void doneFetching(){
         consumerIndex++;

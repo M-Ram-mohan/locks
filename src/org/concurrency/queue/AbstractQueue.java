@@ -1,17 +1,15 @@
-package org.concurrency.multiplexer;
+package org.concurrency.queue;
 
-import org.concurrency.queue.Queue;
-
-public abstract class Multiplexer implements Queue {
-    public abstract StringBuilder push(int producerIndex);
-    public abstract void flush(int producerIndex);
+public abstract class AbstractQueue implements Queue{
     public abstract int availableToPopCount();
     public abstract StringBuilder pop();
     public abstract void doneFetching();
-    public StringBuilder push(){
+    public abstract StringBuilder push();
+    public abstract void flush();
+    public StringBuilder push(int producerIndex){
         throw new RuntimeException();
     }
-    public void flush(){
+    public void flush(int producerIndex){
         throw new RuntimeException();
     }
     public int availableToPopCount(int consumerIndex){
@@ -22,5 +20,5 @@ public abstract class Multiplexer implements Queue {
     }
     public void doneFetching(int consumerIndex){
         throw new RuntimeException();
-    }
+    };
 }

@@ -35,14 +35,15 @@ public class MultiplexerTest implements Test{
         testQueueLatency(producerRunnables, consumerRunnable);
     }
     public void testQueueLatency(BatchMessageProducerRunnable[] producerRunnables, BatchMessageConsumerRunnable consumerRunnable) {
-        long startTime = System.currentTimeMillis();
+        Thread consumerThread = new Thread(consumerRunnable);
         Thread[] producerThreads = new Thread[PRODUCERS_CNT];
         for (int i=0; i < PRODUCERS_CNT; i++) {
             producerThreads[i] = new Thread(producerRunnables[i]);
-            producerThreads[i].start();
-            System.out.println("Producer " + i + " started");
         }
-        Thread consumerThread = new Thread(consumerRunnable);
+        long startTime = System.currentTimeMillis();
+        for(int i=0; i < PRODUCERS_CNT; i++) {
+            producerThreads[i].start();
+        }
         consumerThread.start();
         for(int i=0; i < PRODUCERS_CNT; i++) {
             try {

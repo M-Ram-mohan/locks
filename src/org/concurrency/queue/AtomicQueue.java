@@ -2,7 +2,7 @@ package org.concurrency.queue;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AtomicQueue implements Queue {
+public class AtomicQueue extends AbstractQueue {
     int capacity;
     AtomicLong producerIndex;
     long currProducerIndex;
@@ -45,12 +45,6 @@ public class AtomicQueue implements Queue {
         }
         currEnd = consumerIndex.get() + capacity;
         return null;
-    }
-    public StringBuilder push(int producerIndex) {
-        throw new RuntimeException();
-    }
-    public void flush(int producerIndex) {
-        throw new RuntimeException();
     }
     public void doneFetching() {
         consumerIndex.set(currConsumerIndex);

@@ -7,7 +7,7 @@ import org.concurrency.queue.Queue;
 import static org.concurrency.utils.Constants.QUEUE_SIZE;
 
 public class AtomicMultiplexer extends Multiplexer {
-    private int producerCount;
+    private final int producerCount;
     private final Queue[] queues;
     public AtomicMultiplexer(int producerCount){
         this.producerCount = producerCount;
