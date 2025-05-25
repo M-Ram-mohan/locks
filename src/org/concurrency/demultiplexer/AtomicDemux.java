@@ -3,16 +3,14 @@ package org.concurrency.demultiplexer;
 import org.concurrency.queue.AtomicQueue;
 import org.concurrency.queue.Queue;
 
-import static org.concurrency.utils.Constants.BATCH_SIZE;
-
-public class AtomicDemux extends Demultiplexer{
+public class AtomicDemux implements Demultiplexer{
     private final Queue[] queue;
     private final int consumerCount;
-    public AtomicDemux(int consumerCount){
+    public AtomicDemux(int consumerCount, int capacity) {
         this.queue = new AtomicQueue[consumerCount];
         this.consumerCount = consumerCount;
         for(int i = 0; i < consumerCount; i++){
-            queue[i] = new AtomicQueue(BATCH_SIZE);
+            queue[i] = new AtomicQueue(capacity);
         }
     }
     public StringBuilder push(){

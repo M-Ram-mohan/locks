@@ -2,35 +2,31 @@ package org.concurrency.tests;
 
 import org.concurrency.demultiplexer.AtomicDemux;
 import org.concurrency.demultiplexer.Demultiplexer;
-import org.concurrency.utils.BatchMessageConsumerRunnable;
-import org.concurrency.utils.BatchMessageProducerRunnable;
+import org.concurrency.demultiplexer.DemuxBatchConsumerRunnable;
+import org.concurrency.demultiplexer.DemuxBatchProducerRunnable;
 
-import static org.concurrency.utils.Constants.BATCH_SIZE;
-import static org.concurrency.utils.Constants.CONSUMERS_CNT;
+import static org.concurrency.utils.Constants.*;
 
 public class DemuxTest implements Test{
-    public DemuxTest(){
-
-    }
 
     public void performTests() {
-        Demultiplexer demux = new AtomicDemux(CONSUMERS_CNT);
-        BatchMessageConsumerRunnable[] consumerRunnables = new BatchMessageConsumerRunnable[CONSUMERS_CNT];
-        for (int i = 0; i < CONSUMERS_CNT; i++) {
-            consumerRunnables[i] = new BatchMessageConsumerRunnable(demux, i, true);
+        Demultiplexer demux = new AtomicDemux(DEMUX_CONSUMERS_CNT, DEMUX_QUEUE_SIZE);
+        DemuxBatchConsumerRunnable[] consumerRunnables = new DemuxBatchConsumerRunnable[DEMUX_CONSUMERS_CNT];
+        for (int i = 0; i < DEMUX_CONSUMERS_CNT; i++) {
+            consumerRunnables[i] = new DemuxBatchConsumerRunnable(demux, i);
         }
-        BatchMessageProducerRunnable producerRunnable = new BatchMessageProducerRunnable(demux, BATCH_SIZE, true);
+        DemuxBatchProducerRunnable producerRunnable = new DemuxBatchProducerRunnable(demux, DEMUX_BATCH_SIZE);
         testQueueLatency(producerRunnable, consumerRunnables);
     }
-    private void testQueueLatency(BatchMessageProducerRunnable producerRunnable, BatchMessageConsumerRunnable[] consumerRunnables) {
+    private void testQueueLatency(DemuxBatchProducerRunnable producerRunnable, DemuxBatchConsumerRunnable[] consumerRunnables) {
         Thread producerThread = new Thread(producerRunnable);
-        Thread[] consumerThreads = new Thread[CONSUMERS_CNT];
-        for (int i = 0; i < CONSUMERS_CNT; i++) {
+        Thread[] consumerThreads = new Thread[DEMUX_CONSUMERS_CNT];
+        for (int i = 0; i < DEMUX_CONSUMERS_CNT; i++) {
             consumerThreads[i] = new Thread(consumerRunnables[i]);
         }
         long startTime = System.currentTimeMillis();
         producerThread.start();
-        for(int i = 0; i < CONSUMERS_CNT; i++) {
+        for(int i = 0; i < DEMUX_CONSUMERS_CNT; i++) {
             consumerThreads[i].start();
         }
         try {
@@ -38,7 +34,7 @@ public class DemuxTest implements Test{
         } catch (InterruptedException e) {
             throw new RuntimeException();
         }
-        for (int i = 0; i < CONSUMERS_CNT; i++) {
+        for (int i = 0; i < DEMUX_CONSUMERS_CNT; i++) {
             try {
                 consumerThreads[i].join();
             } catch (Exception ex) {
@@ -46,7 +42,7 @@ public class DemuxTest implements Test{
             }
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Total time taken: " + (endTime - startTime) + " ms");
+        System.out.println("Demux : " + (endTime - startTime) + " ms");
     }
 
 }

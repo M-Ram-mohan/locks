@@ -1,26 +1,9 @@
 package org.concurrency.multiplexer;
 
-import org.concurrency.queue.Queue;
-
-public abstract class Multiplexer implements Queue {
-    public abstract StringBuilder push(int producerIndex);
-    public abstract void flush(int producerIndex);
-    public abstract int availableToPopCount();
-    public abstract StringBuilder pop();
-    public abstract void doneFetching();
-    public StringBuilder push(){
-        throw new RuntimeException();
-    }
-    public void flush(){
-        throw new RuntimeException();
-    }
-    public int availableToPopCount(int consumerIndex){
-        throw new RuntimeException();
-    }
-    public StringBuilder pop(int consumerIndex){
-        throw new RuntimeException();
-    }
-    public void doneFetching(int consumerIndex){
-        throw new RuntimeException();
-    }
+public interface Multiplexer {
+    public StringBuilder push(int producerIndex);
+    public void flush(int producerIndex);
+    public int availableToPopCount();
+    public StringBuilder pop();
+    public void doneFetching();
 }

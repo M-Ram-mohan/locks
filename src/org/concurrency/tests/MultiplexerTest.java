@@ -2,11 +2,11 @@ package org.concurrency.tests;
 
 import org.concurrency.multiplexer.AtomicMultiplexer;
 import org.concurrency.multiplexer.Multiplexer;
-import org.concurrency.utils.BatchMessageConsumerRunnable;
-import org.concurrency.utils.BatchMessageProducerRunnable;
+import org.concurrency.multiplexer.MuxBatchConsumerRunnable;
+import org.concurrency.multiplexer.MuxBatchProducerRunnable;
 
-import static org.concurrency.utils.Constants.BATCH_SIZE;
-import static org.concurrency.utils.Constants.PRODUCERS_CNT;
+import static org.concurrency.utils.Constants.*;
+
 /*
  * Messages : 9_000_000 - Producers : 3
  *
@@ -21,31 +21,28 @@ import static org.concurrency.utils.Constants.PRODUCERS_CNT;
  *
  */
 public class MultiplexerTest implements Test{
-    public MultiplexerTest(){
-
-    }
 
     public void performTests() {
-        Multiplexer mux = new AtomicMultiplexer(PRODUCERS_CNT);
-        BatchMessageProducerRunnable[] producerRunnables = new BatchMessageProducerRunnable[PRODUCERS_CNT];
-        for (int i = 0; i < PRODUCERS_CNT; i++) {
-            producerRunnables[i] = new BatchMessageProducerRunnable(mux, BATCH_SIZE, i);
+        Multiplexer mux = new AtomicMultiplexer(MUX_PRODUCERS_CNT, MUX_QUEUE_SIZE);
+        MuxBatchProducerRunnable[] producerRunnables = new MuxBatchProducerRunnable[MUX_PRODUCERS_CNT];
+        for (int i = 0; i < MUX_PRODUCERS_CNT; i++) {
+            producerRunnables[i] = new MuxBatchProducerRunnable(mux, MUX_BATCH_SIZE, i);
         }
-        BatchMessageConsumerRunnable consumerRunnable = new BatchMessageConsumerRunnable(mux);
+        MuxBatchConsumerRunnable consumerRunnable = new MuxBatchConsumerRunnable(mux);
         testQueueLatency(producerRunnables, consumerRunnable);
     }
-    public void testQueueLatency(BatchMessageProducerRunnable[] producerRunnables, BatchMessageConsumerRunnable consumerRunnable) {
+    public void testQueueLatency(MuxBatchProducerRunnable[] producerRunnables, MuxBatchConsumerRunnable consumerRunnable) {
         Thread consumerThread = new Thread(consumerRunnable);
-        Thread[] producerThreads = new Thread[PRODUCERS_CNT];
-        for (int i=0; i < PRODUCERS_CNT; i++) {
+        Thread[] producerThreads = new Thread[MUX_PRODUCERS_CNT];
+        for (int i=0; i < MUX_PRODUCERS_CNT; i++) {
             producerThreads[i] = new Thread(producerRunnables[i]);
         }
         long startTime = System.currentTimeMillis();
-        for(int i=0; i < PRODUCERS_CNT; i++) {
+        for(int i=0; i < MUX_PRODUCERS_CNT; i++) {
             producerThreads[i].start();
         }
         consumerThread.start();
-        for(int i=0; i < PRODUCERS_CNT; i++) {
+        for(int i=0; i < MUX_PRODUCERS_CNT; i++) {
             try {
                 producerThreads[i].join();
             } catch (InterruptedException e) {
@@ -58,6 +55,6 @@ public class MultiplexerTest implements Test{
             throw new RuntimeException();
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Total time taken: " + (endTime - startTime) + " ms");
+        System.out.println("Mux : " + (endTime - startTime) + " ms");
     }
 }

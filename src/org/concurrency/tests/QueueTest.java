@@ -2,13 +2,10 @@ package org.concurrency.tests;
 
 import org.concurrency.queue.AtomicQueue;
 import org.concurrency.queue.Queue;
-import org.concurrency.queue.SynchronizedQueue;
-import org.concurrency.utils.BasicConsumerRunnable;
-import org.concurrency.utils.BasicProducerRunnable;
-import org.concurrency.utils.BatchMessageConsumerRunnable;
-import org.concurrency.utils.BatchMessageProducerRunnable;
+import org.concurrency.queue.BatchMessageConsumerRunnable;
+import org.concurrency.queue.BatchMessageProducerRunnable;
 
-import static org.concurrency.utils.Constants.BATCH_SIZE;
+import static org.concurrency.utils.Constants.QUEUE_BATCH_SIZE;
 import static org.concurrency.utils.Constants.QUEUE_SIZE;
 
 /**
@@ -35,28 +32,16 @@ import static org.concurrency.utils.Constants.QUEUE_SIZE;
  */
 public class QueueTest implements Test {
 
-    public QueueTest(){
-
-    }
     public void performTests(){
         try{
-            testSingleProducerSingleConsumerQueue(new AtomicQueue(QUEUE_SIZE));
-            Thread.sleep(1000);
-            testSingleProducerSingleConsumerQueue(new SynchronizedQueue(QUEUE_SIZE));
-            Thread.sleep(1000);
             testSingleProducerSingleConsumerQueueWithBatching(new AtomicQueue(QUEUE_SIZE));
         } catch (Exception ex){
             throw new RuntimeException();
         }
     }
-    public static void testSingleProducerSingleConsumerQueue(Queue queue){
-        BasicProducerRunnable basicProducerRunnable = new BasicProducerRunnable(queue);
-        BasicConsumerRunnable basicConsumerRunnable = new BasicConsumerRunnable(queue);
-        testQueueLatency(basicProducerRunnable, basicConsumerRunnable);
-    }
 
     public static void testSingleProducerSingleConsumerQueueWithBatching(Queue queue){
-        BatchMessageProducerRunnable producerRunnable = new BatchMessageProducerRunnable(queue, BATCH_SIZE);
+        BatchMessageProducerRunnable producerRunnable = new BatchMessageProducerRunnable(queue, QUEUE_BATCH_SIZE);
         BatchMessageConsumerRunnable consumerRunnable = new BatchMessageConsumerRunnable(queue);
         testQueueLatency(producerRunnable, consumerRunnable);
     }
@@ -74,7 +59,7 @@ public class QueueTest implements Test {
             throw new RuntimeException();
         }
         long end = System.currentTimeMillis();
-        System.out.println("Time taken: " + (end - start) + "ms");
+        System.out.println("Queue : " + (end - start) + "ms");
     }
 }
 /**

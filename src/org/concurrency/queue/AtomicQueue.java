@@ -2,7 +2,7 @@ package org.concurrency.queue;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AtomicQueue extends AbstractQueue {
+public class AtomicQueue implements Queue {
     int capacity;
     AtomicLong producerIndex;
     long currProducerIndex;

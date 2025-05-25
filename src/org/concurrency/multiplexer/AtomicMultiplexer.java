@@ -3,17 +3,15 @@ package org.concurrency.multiplexer;
 import org.concurrency.queue.AtomicQueue;
 import org.concurrency.queue.Queue;
 
-
-import static org.concurrency.utils.Constants.QUEUE_SIZE;
-
-public class AtomicMultiplexer extends Multiplexer {
+public class AtomicMultiplexer implements Multiplexer {
     private final int producerCount;
     private final Queue[] queues;
-    public AtomicMultiplexer(int producerCount){
+
+    public AtomicMultiplexer(int producerCount, int capacity){
         this.producerCount = producerCount;
         this.queues = new AtomicQueue[producerCount];
         for(int i = 0; i < producerCount; i++){
-            queues[i] = new AtomicQueue(QUEUE_SIZE);
+            queues[i] = new AtomicQueue(capacity);
         }
     }
 
