@@ -11,6 +11,8 @@ public class Main {
         testMux.performTests();
         Test testDemux = new DemuxTest();
         testDemux.performTests();
+        Test testMpMcQueue = new MpMcQueueTest();
+        testMpMcQueue.performTests();
     }
 }
 
