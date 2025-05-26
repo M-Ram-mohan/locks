@@ -1,7 +1,5 @@
 package org.concurrency.mpmc;
 
-import org.concurrency.queue.Queue;
-
 public interface MpMcQueue {
 
     public StringBuilder push(int producerIndex);

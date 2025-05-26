@@ -23,5 +23,10 @@ public class Constants {
     public static final int MPMC_QUEUE_SIZE = 1024;
     public static final int MPMC_BATCH_SIZE = 128;
     public static final int MPMC_MSG_PER_PRODUCER = MPMC_MSG_CNT / MPMC_PRODUCERS_CNT;
+    // Broadcaster configuration constants
+    public static final int BROADCASTER_QUEUE_SIZE = 1024;
+    public static final int BROADCASTER_BATCH_SIZE = 128;
+    public static final int BROADCASTER_MSG_CNT = 10_000_000;
+    public static final int BROADCASTER_CONSUMERS_CNT = 3;
 
 }

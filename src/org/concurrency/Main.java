@@ -13,6 +13,8 @@ public class Main {
         testDemux.performTests();
         Test testMpMcQueue = new MpMcQueueTest();
         testMpMcQueue.performTests();
+        Test testBroadcaster = new BroadcasterTest();
+        testBroadcaster.performTests();
     }
 }
 
