@@ -106,5 +106,19 @@ by the consumers will be visible to the producer.
 We can try using a volatile for the consumer indices.
 We can also use a volatile variable for the producer index to ensure it is visible to others.
 A volatile variable can be used at times when there is only one writer and multiple readers.
+Managing the code with volatile variables is hard and error-prone. Bugs can creep in easily.
+When writing to a volatile variable, Thread's local memory is flushed to the main memory. This means
+that all the variables that are visible to the thread are flushed to the main memory.
+Similarly, When reading from a volatile variable, Thread's local memory is updated with the latest values
+from the main memory. Therefore, you need to be careful about the order of operations your code performs.
+You need to read a volatile variable before reading any other variables that are prone to updates by
+other threads. Or else, you can end up reading stale data. Similarly, you need to write to a volatile variable
+only after writing to all the other variables that are prone to updates by other threads.
+Also, there isn't any significant performance gain when using volatile variables in place of atomic variables.
+It makes sense to not support volatile int array by java because you need just 1 volatile variable write to
+flush all the previous writes to the array to main memory. We can make it work by using a proxy volatile
+variable whenever we want to notify about the shared variable changes to the other threads.
 
+Broadcaster works. MpMc Broadcaster can be extended using AtomicBroadcaster instead of AtomicQueue
+in the MpMcQueue class.
  */

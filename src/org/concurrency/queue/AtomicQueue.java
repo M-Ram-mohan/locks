@@ -67,3 +67,9 @@ public class AtomicQueue implements Queue {
      *
      */
 }
+/*
+We can support rollback in the AtomicQueue. But this rollback will only be supported to the
+messages which were processed by the consumer after the last doneFetching() method was called.
+This way, your producer will not be able to push a new message beyond the last updated
+consumer index.
+ */
