@@ -7,19 +7,6 @@ import org.concurrency.multiplexer.MuxBatchProducerRunnable;
 
 import static org.concurrency.utils.Constants.*;
 
-/*
- * Messages : 9_000_000 - Producers : 3
- *
- * Time taken - 900 ms
- *
- * Messages : 9_00_000 - Producers : 3
- *
- * Time taken - 120 ms
- *
- * Results seem a bit inconsistent. Achieved 400ms || 60ms at some point of time.
- * Need to figure out why.
- *
- */
 public class MultiplexerTest implements Test{
 
     public void performTests() {
